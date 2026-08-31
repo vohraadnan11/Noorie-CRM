@@ -1,4 +1,9 @@
 name = "noorie-crm"
+main = "src/index.js"
 compatibility_date = "2026-08-28"
 assets = { directory = "./public" }
-d1_databases = [ { binding = "DB", database_name = "noorie-crm", database_id = "e7f61d62-de01-4049-85fc-c8091ab625ef" } ]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "noorie-crm"
+database_id = "e7f61d62-de01-4049-85fc-c8091ab625ef"
