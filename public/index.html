@@ -351,7 +351,12 @@
   }
 
   function fmtDate(d){
-    const dt = new Date(d.includes('T') ? d : d + "T00:00:00Z");
+    // SQLite's datetime('now') returns "YYYY-MM-DD HH:MM:SS" (space-separated,
+    // no timezone). Normalize to a proper ISO string before parsing.
+    let iso = d.includes('T') ? d : d.replace(' ', 'T');
+    if(!iso.endsWith('Z') && !/[+-]\d\d:\d\d$/.test(iso)) iso += 'Z';
+    const dt = new Date(iso);
+    if(isNaN(dt.getTime())) return d; // fallback: show raw value rather than "Invalid Date"
     return dt.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
   }
 
