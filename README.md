@@ -70,11 +70,15 @@ with:
 ```
 and drop `logo.png` into the `public/` folder.
 
-## Points system
+## VIP discount system
 
-₹100 spent = 1 point. Reward unlocks every 20 points. To change this, edit
-`POINTS_PER_100` and `REWARD_THRESHOLD` in `public/index.html`, and
-`POINTS_PER_100` in `functions/api/customer.js` and `functions/api/purchase.js`.
+A purchase of ₹1000 or more marks a customer as VIP for their *next* visit.
+On that next visit, typing today's amount shows a live discount note:
+10% off for purchases up to ₹2000, 15% off above ₹2000. This is informational
+only — the discount isn't auto-applied or saved, you apply it manually at
+billing. To change the thresholds, edit `VIP_QUALIFYING_AMOUNT`,
+`DISCOUNT_TIER_LOW`, `DISCOUNT_TIER_HIGH`, and `DISCOUNT_TIER_CUTOFF` in
+`public/index.html`.
 
 ## WhatsApp numbers
 

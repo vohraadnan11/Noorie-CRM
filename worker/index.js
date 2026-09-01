@@ -2,13 +2,6 @@
 // Handles /api/* routes directly, and serves everything else from the
 // static assets bound via wrangler.toml's `assets` config.
 
-const POINTS_PER_100 = 1;
-
-function calcPoints(history) {
-  const total = history.reduce((sum, p) => sum + p.amount, 0);
-  return Math.floor(total / 100) * POINTS_PER_100;
-}
-
 async function handleGetCustomer(request, env) {
   const url = new URL(request.url);
   const phone = (url.searchParams.get("phone") || "").trim();
@@ -22,7 +15,7 @@ async function handleGetCustomer(request, env) {
   ).bind(phone).first();
 
   if (!customer) {
-    return Response.json({ phone, name: null, history: [], points: 0, isNew: true });
+    return Response.json({ phone, name: null, history: [], isNew: true });
   }
 
   const { results: history } = await env.DB.prepare(
@@ -33,7 +26,6 @@ async function handleGetCustomer(request, env) {
     phone,
     name: customer.name,
     history,
-    points: calcPoints(history),
     isNew: false
   });
 }
@@ -76,7 +68,7 @@ async function handlePostPurchase(request, env) {
     "SELECT amount, date FROM purchases WHERE phone = ? ORDER BY date ASC"
   ).bind(phone).all();
 
-  return Response.json({ phone, name: finalName, history, points: calcPoints(history) });
+  return Response.json({ phone, name: finalName, history });
 }
 
 // ---- Simple PIN gate ----

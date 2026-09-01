@@ -169,11 +169,12 @@
   }
   .cust-head h2{ font-family:'Zilla Slab', serif; font-size:20px; margin:0 0 2px; }
   .cust-head .code{ font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--text-soft); }
-  .points-pill{
+  .vip-pill{
     background:var(--ink); color:var(--gold);
     font-family:'IBM Plex Mono', monospace; font-size:12px; font-weight:600;
     padding:6px 10px; border-radius:20px; white-space:nowrap;
   }
+  .vip-pill.inactive{ background:var(--paper-line); color:var(--text-soft); }
 
   .hist-label{
     font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:0.14em;
@@ -188,11 +189,13 @@
   .ledger-line .amt{ font-weight:600; flex-shrink:0; }
   .empty-hist{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--text-soft); padding:8px 0; }
 
-  .reward-note{
+  .discount-note{
     margin-top:14px; background:#fff; border:1px solid var(--paper-line);
     border-radius:8px; padding:10px 12px; font-size:12.5px; color:var(--text-soft);
+    display:none;
   }
-  .reward-note strong{ color:var(--text); }
+  .discount-note.active{ display:block; border-color:var(--gold); background:#FBF3E1; }
+  .discount-note strong{ color:var(--text); }
 
   .add-form{ margin-top:16px; border-top:1.5px dashed var(--paper-line); padding-top:14px; }
   .add-form h3{ font-family:'Zilla Slab', serif; font-size:15px; margin:0 0 10px; }
@@ -264,13 +267,11 @@
           <input type="text" id="newCustName" class="name-row" placeholder="e.g. Priya Shah" style="margin-bottom:0;" />
         </div>
       </div>
-      <div class="points-pill" id="custPoints">0 pts</div>
+      <div class="vip-pill" id="vipPill">—</div>
     </div>
 
     <div class="hist-label">Purchase history</div>
     <div id="historyList"></div>
-
-    <div class="reward-note" id="rewardNote"></div>
 
     <div class="add-form">
       <h3>Add today's purchase</h3>
@@ -279,6 +280,7 @@
         <input type="number" id="newAmt" placeholder="0" min="0" step="1" />
         <button class="btn btn-gold" id="addPurchaseBtn" style="width:auto;">Add</button>
       </div>
+      <div class="discount-note" id="discountNote"></div>
     </div>
 
     <div class="whatsapp-section">
@@ -286,7 +288,7 @@
       <button class="btn btn-whatsapp" id="waChatBtn">Open chat with customer</button>
       <div class="btn-row">
         <button class="btn btn-ghost" id="waBillBtn">Send bill copy</button>
-        <button class="btn btn-ghost" id="waRewardBtn">Send reward status</button>
+        <button class="btn btn-ghost" id="waRewardBtn">Send discount status</button>
       </div>
     </div>
 
@@ -296,14 +298,16 @@
   </div>
 
   <footer class="disclaim">
-    Points: ₹100 spent = 1 point. Reward unlocks at 20 points.
+    VIP: any purchase of ₹1000+ unlocks a discount on the next visit — 10% up to ₹2000, 15% above ₹2000.
   </footer>
 
 </div>
 
 <script>
-  const POINTS_PER_100 = 1;
-  const REWARD_THRESHOLD = 20;
+  const VIP_QUALIFYING_AMOUNT = 1000; // a purchase of this much or more unlocks a discount next time
+  const DISCOUNT_TIER_LOW = 10;       // % discount, purchases up to DISCOUNT_TIER_CUTOFF
+  const DISCOUNT_TIER_HIGH = 15;      // % discount, purchases above DISCOUNT_TIER_CUTOFF
+  const DISCOUNT_TIER_CUTOFF = 2000;
 
   const customers = {}; // client-side cache for this session
 
@@ -370,8 +374,16 @@
     return digits;
   }
 
-  function pointsRemaining(points){
-    return REWARD_THRESHOLD - (points % REWARD_THRESHOLD || REWARD_THRESHOLD);
+  // VIP eligibility: their most recent purchase (before today's new one) was ₹1000+
+  function isVipEligible(cust){
+    if(!cust || !cust.history || cust.history.length === 0) return false;
+    const last = cust.history[cust.history.length - 1];
+    return last.amount >= VIP_QUALIFYING_AMOUNT;
+  }
+
+  function discountPercentFor(amount){
+    if(!amount || amount <= 0) return 0;
+    return amount > DISCOUNT_TIER_CUTOFF ? DISCOUNT_TIER_HIGH : DISCOUNT_TIER_LOW;
   }
 
   function renderCustomer(phone){
@@ -386,7 +398,15 @@
       newRow.style.display = "none";
     }
     document.getElementById('custPhone').textContent = phone;
-    document.getElementById('custPoints').textContent = cust.points + " pts";
+
+    const vipPill = document.getElementById('vipPill');
+    if(isVipEligible(cust)){
+      vipPill.textContent = "VIP — discount ready";
+      vipPill.classList.remove('inactive');
+    } else {
+      vipPill.textContent = "Standard";
+      vipPill.classList.add('inactive');
+    }
 
     const listEl = document.getElementById('historyList');
     listEl.innerHTML = "";
@@ -401,14 +421,24 @@
       });
     }
 
-    const noteEl = document.getElementById('rewardNote');
-    const points = cust.points;
-    if(points > 0 && points % REWARD_THRESHOLD === 0){
-      noteEl.innerHTML = `<strong>Reward ready.</strong> ${points} points — eligible to redeem.`;
-    } else {
-      const toGo = pointsRemaining(points);
-      noteEl.innerHTML = `<strong>${toGo} points to next reward.</strong> Reward unlocks every ${REWARD_THRESHOLD} points.`;
+    updateDiscountPreview();
+  }
+
+  function updateDiscountPreview(){
+    const noteEl = document.getElementById('discountNote');
+    const cust = customers[currentPhone];
+    const amount = parseFloat(newAmt.value);
+
+    if(!cust || !isVipEligible(cust) || !amount || amount <= 0){
+      noteEl.classList.remove('active');
+      noteEl.innerHTML = "";
+      return;
     }
+
+    const pct = discountPercentFor(amount);
+    const discountedTotal = amount - (amount * pct / 100);
+    noteEl.classList.add('active');
+    noteEl.innerHTML = `<strong>${pct}% VIP discount applies.</strong> ₹${amount.toLocaleString('en-IN')} → ${fmtAmt(Math.round(discountedTotal))} after discount. (Apply manually at billing — this amount isn't auto-saved.)`;
   }
 
   async function showCustomer(phone){
@@ -444,6 +474,8 @@
     if(e.key === "Enter"){ lookupBtn.click(); }
   });
 
+  newAmt.addEventListener('input', updateDiscountPreview);
+
   addPurchaseBtn.addEventListener('click', async () => {
     const amt = parseFloat(newAmt.value);
     if(!amt || amt <= 0){
@@ -468,7 +500,7 @@
       await postPurchase(currentPhone, amt, nameToSend);
       renderCustomer(currentPhone);
       newAmt.value = "";
-      showToast("Purchase added — points updated.");
+      showToast("Purchase added — VIP status updated.");
     } catch (err) {
       showToast("Couldn't save — " + err.message);
     } finally {
@@ -489,15 +521,18 @@
       return;
     }
     const last = cust.history[cust.history.length - 1];
-    const msg = `Hi ${cust.name || ''}, thank you for shopping at Noorie Enterprise!\n\nYour bill: ${fmtAmt(last.amount)} on ${fmtDate(last.date)}\nTotal points: ${cust.points}\n\nWe look forward to serving you again.`;
+    const vip = isVipEligible(cust);
+    const msg = `Hi ${cust.name || ''}, thank you for shopping at Noorie Enterprise!\n\nYour bill: ${fmtAmt(last.amount)} on ${fmtDate(last.date)}${vip ? `\n\nYou're eligible for a VIP discount on your next purchase!` : ''}\n\nWe look forward to serving you again.`;
     window.open(`https://wa.me/${toWaNumber(currentPhone)}?text=${encodeURIComponent(msg)}`, '_blank');
   });
 
   waRewardBtn.addEventListener('click', () => {
     const cust = customers[currentPhone];
     if(!cust) return;
-    const toGo = pointsRemaining(cust.points);
-    const msg = `Hi ${cust.name || ''}, here's your Noorie Enterprise reward status:\n\nCurrent points: ${cust.points}\n${toGo} points to your next reward!\n\n(₹100 spent = 1 point, reward every ${REWARD_THRESHOLD} points)`;
+    const vip = isVipEligible(cust);
+    const msg = vip
+      ? `Hi ${cust.name || ''}, good news from Noorie Enterprise!\n\nYou're a VIP customer — your next purchase qualifies for a discount: 10% off up to ₹2000, or 15% off above ₹2000.\n\nWe look forward to seeing you again!`
+      : `Hi ${cust.name || ''}, here's your status with Noorie Enterprise:\n\nMake a purchase of ₹${VIP_QUALIFYING_AMOUNT}+ to unlock a VIP discount on your next visit (10% up to ₹2000, 15% above).`;
     window.open(`https://wa.me/${toWaNumber(currentPhone)}?text=${encodeURIComponent(msg)}`, '_blank');
   });
 
