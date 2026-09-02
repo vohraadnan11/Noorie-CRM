@@ -334,17 +334,16 @@
 
 <script>
   /* ---- PIN overlay ---- */
-  const pinOverlay = document.getElementById('pinOverlay');
-  const pinInput   = document.getElementById('pinInput');
-  const pinSubmit  = document.getElementById('pinSubmit');
-  const pinErr     = document.getElementById('pinErr');
-  const pinStatus  = document.getElementById('pinStatus');
-
   function isPinCookieSet(){
     return document.cookie.split(';').some(c => c.trim().startsWith('noorie_auth='));
   }
 
   async function submitPin(){
+    const pinInput  = document.getElementById('pinInput');
+    const pinSubmit = document.getElementById('pinSubmit');
+    const pinErr    = document.getElementById('pinErr');
+    const pinStatus = document.getElementById('pinStatus');
+    const pinOverlay= document.getElementById('pinOverlay');
     const pin = pinInput.value.trim();
     if(!pin) return;
     pinErr.style.display = 'none';
@@ -373,16 +372,20 @@
     }
   }
 
-  pinSubmit.addEventListener('click', submitPin);
-  pinInput.addEventListener('keydown', e => { if(e.key === 'Enter') submitPin(); });
+  document.addEventListener('DOMContentLoaded', () => {
+    const pinOverlay = document.getElementById('pinOverlay');
+    const pinInput   = document.getElementById('pinInput');
+    const pinSubmit  = document.getElementById('pinSubmit');
 
-  // On load: if the session cookie is already present, skip the overlay
-  if(isPinCookieSet()){
-    pinOverlay.classList.add('hidden');
-  } else {
-    pinInput.focus();
-  }
+    pinSubmit.addEventListener('click', submitPin);
+    pinInput.addEventListener('keydown', e => { if(e.key === 'Enter') submitPin(); });
 
+    if(isPinCookieSet()){
+      pinOverlay.classList.add('hidden');
+    } else {
+      pinInput.focus();
+    }
+  });
   /* ---- end PIN overlay ---- */
 
   const DISCOUNT_MIN_AMOUNT = 600;    // below this, no discount
