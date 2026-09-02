@@ -267,7 +267,6 @@
           <input type="text" id="newCustName" class="name-row" placeholder="e.g. Priya Shah" style="margin-bottom:0;" />
         </div>
       </div>
-      <div class="vip-pill" id="vipPill">—</div>
     </div>
 
     <div class="hist-label">Purchase history</div>
@@ -298,16 +297,16 @@
   </div>
 
   <footer class="disclaim">
-    VIP: any purchase of ₹1000+ unlocks a discount on the next visit — 10% up to ₹2000, 15% above ₹2000.
+    Discount: ₹600–₹1900 purchase = 10% off. Above ₹1900 = 15% off.
   </footer>
 
 </div>
 
 <script>
-  const VIP_QUALIFYING_AMOUNT = 1000; // a purchase of this much or more unlocks a discount next time
-  const DISCOUNT_TIER_LOW = 10;       // % discount, purchases up to DISCOUNT_TIER_CUTOFF
-  const DISCOUNT_TIER_HIGH = 15;      // % discount, purchases above DISCOUNT_TIER_CUTOFF
-  const DISCOUNT_TIER_CUTOFF = 2000;
+  const DISCOUNT_MIN_AMOUNT = 600;    // below this, no discount
+  const DISCOUNT_TIER_CUTOFF = 1900;  // above this, higher tier
+  const DISCOUNT_LOW = 10;            // % for DISCOUNT_MIN_AMOUNT–DISCOUNT_TIER_CUTOFF
+  const DISCOUNT_HIGH = 15;           // % above DISCOUNT_TIER_CUTOFF
 
   const customers = {}; // client-side cache for this session
 
@@ -374,16 +373,9 @@
     return digits;
   }
 
-  // VIP eligibility: their most recent purchase (before today's new one) was ₹1000+
-  function isVipEligible(cust){
-    if(!cust || !cust.history || cust.history.length === 0) return false;
-    const last = cust.history[cust.history.length - 1];
-    return last.amount >= VIP_QUALIFYING_AMOUNT;
-  }
-
   function discountPercentFor(amount){
-    if(!amount || amount <= 0) return 0;
-    return amount > DISCOUNT_TIER_CUTOFF ? DISCOUNT_TIER_HIGH : DISCOUNT_TIER_LOW;
+    if(!amount || amount < DISCOUNT_MIN_AMOUNT) return 0;
+    return amount > DISCOUNT_TIER_CUTOFF ? DISCOUNT_HIGH : DISCOUNT_LOW;
   }
 
   function renderCustomer(phone){
@@ -398,15 +390,6 @@
       newRow.style.display = "none";
     }
     document.getElementById('custPhone').textContent = phone;
-
-    const vipPill = document.getElementById('vipPill');
-    if(isVipEligible(cust)){
-      vipPill.textContent = "VIP — discount ready";
-      vipPill.classList.remove('inactive');
-    } else {
-      vipPill.textContent = "Standard";
-      vipPill.classList.add('inactive');
-    }
 
     const listEl = document.getElementById('historyList');
     listEl.innerHTML = "";
@@ -426,19 +409,18 @@
 
   function updateDiscountPreview(){
     const noteEl = document.getElementById('discountNote');
-    const cust = customers[currentPhone];
     const amount = parseFloat(newAmt.value);
+    const pct = discountPercentFor(amount);
 
-    if(!cust || !isVipEligible(cust) || !amount || amount <= 0){
+    if(!pct){
       noteEl.classList.remove('active');
       noteEl.innerHTML = "";
       return;
     }
 
-    const pct = discountPercentFor(amount);
     const discountedTotal = amount - (amount * pct / 100);
     noteEl.classList.add('active');
-    noteEl.innerHTML = `<strong>${pct}% VIP discount applies.</strong> ₹${amount.toLocaleString('en-IN')} → ${fmtAmt(Math.round(discountedTotal))} after discount. (Apply manually at billing — this amount isn't auto-saved.)`;
+    noteEl.innerHTML = `<strong>${pct}% discount applies.</strong> ₹${amount.toLocaleString('en-IN')} → ${fmtAmt(Math.round(discountedTotal))} after discount. (Apply manually at billing — this amount isn't auto-saved.)`;
   }
 
   async function showCustomer(phone){
@@ -521,18 +503,22 @@
       return;
     }
     const last = cust.history[cust.history.length - 1];
-    const vip = isVipEligible(cust);
-    const msg = `Hi ${cust.name || ''}, thank you for shopping at Noorie Enterprise!\n\nYour bill: ${fmtAmt(last.amount)} on ${fmtDate(last.date)}${vip ? `\n\nYou're eligible for a VIP discount on your next purchase!` : ''}\n\nWe look forward to serving you again.`;
+    const pct = discountPercentFor(last.amount);
+    const msg = `Hi ${cust.name || ''}, thank you for shopping at Noorie Enterprise!\n\nYour bill: ${fmtAmt(last.amount)} on ${fmtDate(last.date)}${pct ? `\n${pct}% discount applied — ${fmtAmt(Math.round(last.amount - last.amount * pct / 100))} after discount.` : ''}\n\nWe look forward to serving you again.`;
     window.open(`https://wa.me/${toWaNumber(currentPhone)}?text=${encodeURIComponent(msg)}`, '_blank');
   });
 
   waRewardBtn.addEventListener('click', () => {
     const cust = customers[currentPhone];
-    if(!cust) return;
-    const vip = isVipEligible(cust);
-    const msg = vip
-      ? `Hi ${cust.name || ''}, good news from Noorie Enterprise!\n\nYou're a VIP customer — your next purchase qualifies for a discount: 10% off up to ₹2000, or 15% off above ₹2000.\n\nWe look forward to seeing you again!`
-      : `Hi ${cust.name || ''}, here's your status with Noorie Enterprise:\n\nMake a purchase of ₹${VIP_QUALIFYING_AMOUNT}+ to unlock a VIP discount on your next visit (10% up to ₹2000, 15% above).`;
+    if(!cust || cust.history.length === 0){
+      showToast("No purchases yet to check discount status.");
+      return;
+    }
+    const last = cust.history[cust.history.length - 1];
+    const pct = discountPercentFor(last.amount);
+    const msg = pct
+      ? `Hi ${cust.name || ''}, good news from Noorie Enterprise!\n\nYour purchase of ${fmtAmt(last.amount)} qualifies for a ${pct}% discount.\n\nWe look forward to seeing you again!`
+      : `Hi ${cust.name || ''}, here's our discount policy at Noorie Enterprise:\n\n₹${DISCOUNT_MIN_AMOUNT}–₹${DISCOUNT_TIER_CUTOFF}: ${DISCOUNT_LOW}% off\nAbove ₹${DISCOUNT_TIER_CUTOFF}: ${DISCOUNT_HIGH}% off\n\nApplies automatically on qualifying purchases!`;
     window.open(`https://wa.me/${toWaNumber(currentPhone)}?text=${encodeURIComponent(msg)}`, '_blank');
   });
 
