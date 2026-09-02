@@ -105,6 +105,7 @@ function loginPage(error) {
     background:#1F3A34;font-family:'Segoe UI',Arial,sans-serif;}
   .box{background:#F6F2E9;border-radius:10px;padding:32px 28px;width:280px;
     box-shadow:0 18px 40px rgba(0,0,0,0.28);text-align:center;}
+  .box img{width:64px;height:64px;border-radius:50%;margin-bottom:14px;object-fit:cover;}
   .box h1{font-size:18px;margin:0 0 4px;color:#2B2620;}
   .box p{font-size:12px;color:#6B6455;margin:0 0 18px;}
   input{width:100%;box-sizing:border-box;padding:12px;font-size:16px;text-align:center;
@@ -115,6 +116,7 @@ function loginPage(error) {
 </style></head>
 <body>
   <form class="box" method="POST" action="/login">
+    <img src="/round%20logo.jpg" alt="Noorie">
     <h1>Noorie CRM</h1>
     <p>Enter PIN to continue</p>
     ${error ? '<div class="err">Incorrect PIN — try again.</div>' : ''}

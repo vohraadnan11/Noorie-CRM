@@ -245,8 +245,7 @@
 
   <header class="top">
     <div class="logo">
-      <!-- Replace with <img src="https://raw.githubusercontent.com/vohraadnan11/Noorie-CRM/main/public/round%20logo.jpg" alt="Noorie"> once you have your logo file -->
-      <span>N</span>
+      <img src="/round%20logo.jpg" alt="Noorie">
     </div>
     <div class="eyebrow">Noorie Enterprise</div>
     <h1>Customer Ledger</h1>
@@ -508,11 +507,23 @@
   });
 
   // Draws a bill/receipt as a canvas image, returns a Promise<Blob>
-  function generateBillImage(cust, purchase, pct){
+  function loadImage(src){
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = src;
+    });
+  }
+
+  async function generateBillImage(cust, purchase, pct){
     const W = 640, H = 820;
     const canvas = document.createElement('canvas');
     canvas.width = W; canvas.height = H;
     const ctx = canvas.getContext('2d');
+
+    const logoImg = await loadImage('/round%20logo.jpg').catch(() => null);
 
     // Background
     ctx.fillStyle = "#F6F2E9";
@@ -524,22 +535,38 @@
     let y = 70;
 
     // Logo circle
-    ctx.beginPath();
-    ctx.arc(W / 2, y, 40, 0, Math.PI * 2);
-    ctx.fillStyle = "#F6F2E9";
-    ctx.fill();
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = "#C99A3E";
-    ctx.stroke();
-    ctx.fillStyle = "#1F3A34";
-    ctx.font = "bold 34px Georgia, serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText("N", W / 2, y + 3);
+    if(logoImg){
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(W / 2, y, 40, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.clip();
+      ctx.drawImage(logoImg, W / 2 - 40, y - 40, 80, 80);
+      ctx.restore();
+      ctx.beginPath();
+      ctx.arc(W / 2, y, 40, 0, Math.PI * 2);
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "#C99A3E";
+      ctx.stroke();
+    } else {
+      ctx.beginPath();
+      ctx.arc(W / 2, y, 40, 0, Math.PI * 2);
+      ctx.fillStyle = "#F6F2E9";
+      ctx.fill();
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "#C99A3E";
+      ctx.stroke();
+      ctx.fillStyle = "#1F3A34";
+      ctx.font = "bold 34px Georgia, serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("N", W / 2, y + 3);
+    }
 
     y += 70;
     ctx.fillStyle = "#C99A3E";
     ctx.font = "600 13px Arial";
+    ctx.textAlign = "center";
     ctx.textBaseline = "alphabetic";
     ctx.fillText("N O O R I E   E N T E R P R I S E", W / 2, y);
 
