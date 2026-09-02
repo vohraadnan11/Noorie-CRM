@@ -66,7 +66,7 @@
   }
   header.top .eyebrow{
     font-family:'IBM Plex Mono', monospace;
-    font-size:11px;
+    font-size:12px;
     letter-spacing:0.18em;
     text-transform:uppercase;
     color:var(--gold);
@@ -75,12 +75,12 @@
   header.top h1{
     font-family:'Zilla Slab', serif;
     font-weight:700;
-    font-size:26px;
+    font-size:28px;
     margin:0;
     letter-spacing:0.01em;
   }
   header.top p{
-    font-size:13px;
+    font-size:14px;
     color:var(--sage);
     margin:6px 0 0;
   }
@@ -95,7 +95,7 @@
 
   .search-card h2{
     font-family:'Zilla Slab', serif;
-    font-size:16px;
+    font-size:17px;
     margin:0 0 12px;
     display:flex;
     align-items:center;
@@ -110,7 +110,7 @@
   .btn{
     font-family:'Inter', sans-serif;
     font-weight:600;
-    font-size:14px;
+    font-size:15px;
     border:none;
     border-radius:8px;
     padding:12px 16px;
@@ -132,6 +132,11 @@
     background:transparent; color:var(--text-soft);
     border:1px solid var(--paper-line); width:100%;
   }
+  .btn-back{
+    background:var(--sage); color:var(--ink-deep);
+    width:100%; margin-bottom:16px; font-size:15px; padding:14px 16px;
+  }
+  .btn-back:hover{ filter:brightness(0.95); }
   .btn-row{ display:flex; gap:8px; margin-top:8px; }
   .btn-row .btn{ flex:1; font-size:12.5px; padding:10px 8px; }
 
@@ -139,7 +144,7 @@
   .manual-row input{
     flex:1;
     font-family:'IBM Plex Mono', monospace;
-    font-size:14px;
+    font-size:15px;
     padding:10px 12px;
     border-radius:8px;
     border:1px solid var(--paper-line);
@@ -152,7 +157,7 @@
   .hint{
     margin-top:8px;
     font-family:'IBM Plex Mono', monospace;
-    font-size:11px;
+    font-size:12px;
     color:var(--text-soft);
   }
 
@@ -167,8 +172,8 @@
     padding-bottom:14px;
     margin-bottom:14px;
   }
-  .cust-head h2{ font-family:'Zilla Slab', serif; font-size:20px; margin:0 0 2px; }
-  .cust-head .code{ font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--text-soft); }
+  .cust-head h2{ font-family:'Zilla Slab', serif; font-size:22px; margin:0 0 2px; }
+  .cust-head .code{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--text-soft); }
   .vip-pill{
     background:var(--ink); color:var(--gold);
     font-family:'IBM Plex Mono', monospace; font-size:12px; font-weight:600;
@@ -177,60 +182,60 @@
   .vip-pill.inactive{ background:var(--paper-line); color:var(--text-soft); }
 
   .hist-label{
-    font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:0.14em;
+    font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:0.14em;
     text-transform:uppercase; color:var(--text-soft); margin-bottom:8px;
   }
   .ledger-line{
     display:flex; align-items:baseline; gap:6px; padding:6px 0;
-    font-family:'IBM Plex Mono', monospace; font-size:13px;
+    font-family:'IBM Plex Mono', monospace; font-size:14px;
   }
   .ledger-line .date{ color:var(--text-soft); flex-shrink:0; }
   .ledger-line .fill{ flex:1; border-bottom:1px dotted var(--paper-line); transform:translateY(-3px); }
   .ledger-line .amt{ font-weight:600; flex-shrink:0; }
-  .empty-hist{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--text-soft); padding:8px 0; }
+  .empty-hist{ font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--text-soft); padding:8px 0; }
 
   .discount-note{
     margin-top:14px; background:#fff; border:1px solid var(--paper-line);
-    border-radius:8px; padding:10px 12px; font-size:12.5px; color:var(--text-soft);
+    border-radius:8px; padding:10px 12px; font-size:13.5px; color:var(--text-soft);
     display:none;
   }
   .discount-note.active{ display:block; border-color:var(--gold); background:#FBF3E1; }
   .discount-note strong{ color:var(--text); }
 
   .add-form{ margin-top:16px; border-top:1.5px dashed var(--paper-line); padding-top:14px; }
-  .add-form h3{ font-family:'Zilla Slab', serif; font-size:15px; margin:0 0 10px; }
+  .add-form h3{ font-family:'Zilla Slab', serif; font-size:16px; margin:0 0 10px; }
   .add-form label{
-    display:block; font-family:'IBM Plex Mono', monospace; font-size:10px;
+    display:block; font-family:'IBM Plex Mono', monospace; font-size:11px;
     letter-spacing:0.1em; text-transform:uppercase; color:var(--text-soft); margin-bottom:5px;
   }
   .amt-row{ display:flex; gap:8px; }
   .amt-row input{
-    flex:1; font-family:'IBM Plex Mono', monospace; font-size:14px;
+    flex:1; font-family:'IBM Plex Mono', monospace; font-size:16px;
     padding:10px 12px; border-radius:8px; border:1px solid var(--paper-line); background:#fff; color:var(--text);
   }
   .name-row input{
-    width:100%; font-family:'Inter',sans-serif; font-size:14px;
+    width:100%; font-family:'Inter',sans-serif; font-size:15px;
     padding:9px 10px; border-radius:8px; border:1px solid var(--paper-line); background:#fff;
     margin-bottom:10px;
   }
 
   .whatsapp-section{ margin-top:16px; border-top:1.5px dashed var(--paper-line); padding-top:14px; }
-  .whatsapp-section h3{ font-family:'Zilla Slab', serif; font-size:15px; margin:0 0 10px; }
+  .whatsapp-section h3{ font-family:'Zilla Slab', serif; font-size:16px; margin:0 0 10px; }
 
   .toast{
     display:none; margin-top:10px; font-family:'IBM Plex Mono', monospace;
-    font-size:12px; padding:8px 10px; border-radius:6px; background:var(--ink); color:var(--paper);
+    font-size:13px; padding:8px 10px; border-radius:6px; background:var(--ink); color:var(--paper);
   }
   .toast.show{ display:block; }
 
   .switch-btn{
     background:none; border:none; color:var(--sage); font-family:'IBM Plex Mono', monospace;
-    font-size:12px; cursor:pointer; padding:8px 0; text-align:center; width:100%;
+    font-size:13px; cursor:pointer; padding:8px 0; text-align:center; width:100%;
   }
   .switch-btn:hover{ color:var(--gold); }
 
   .disclaim{
-    text-align:center; font-size:11px; color:var(--sage); opacity:0.7;
+    text-align:center; font-size:12px; color:var(--sage); opacity:0.7;
     font-family:'IBM Plex Mono', monospace; margin-top:8px; line-height:1.6;
   }
 </style>
@@ -258,6 +263,8 @@
   </div>
 
   <div class="card receipt" id="receiptCard">
+    <button class="btn btn-back" id="backBtnTop">← Back to search</button>
+
     <div class="cust-head">
       <div style="flex:1;">
         <h2 id="custName">—</h2>
@@ -307,6 +314,10 @@
   const DISCOUNT_TIER_CUTOFF = 1900;  // above this, higher tier
   const DISCOUNT_LOW = 10;            // % for DISCOUNT_MIN_AMOUNT–DISCOUNT_TIER_CUTOFF
   const DISCOUNT_HIGH = 15;           // % above DISCOUNT_TIER_CUTOFF
+
+  const BUSINESS_NAME = "Noorie Enterprise";
+  const BUSINESS_PHONE = "+91 92287 78692";
+  const BUSINESS_ADDRESS = "Mahavir Marg, Near Gujarati Chowk, Anand, 388001";
 
   const customers = {}; // client-side cache for this session
 
@@ -496,7 +507,141 @@
     window.open(`https://wa.me/${toWaNumber(currentPhone)}`, '_blank');
   });
 
-  waBillBtn.addEventListener('click', () => {
+  // Draws a bill/receipt as a canvas image, returns a Promise<Blob>
+  function generateBillImage(cust, purchase, pct){
+    const W = 640, H = 820;
+    const canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d');
+
+    // Background
+    ctx.fillStyle = "#F6F2E9";
+    ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = "#DCD4C0";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(16, 16, W - 32, H - 32);
+
+    let y = 70;
+
+    // Logo circle
+    ctx.beginPath();
+    ctx.arc(W / 2, y, 40, 0, Math.PI * 2);
+    ctx.fillStyle = "#F6F2E9";
+    ctx.fill();
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = "#C99A3E";
+    ctx.stroke();
+    ctx.fillStyle = "#1F3A34";
+    ctx.font = "bold 34px Georgia, serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("N", W / 2, y + 3);
+
+    y += 70;
+    ctx.fillStyle = "#C99A3E";
+    ctx.font = "600 13px Arial";
+    ctx.textBaseline = "alphabetic";
+    ctx.fillText("N O O R I E   E N T E R P R I S E", W / 2, y);
+
+    y += 34;
+    ctx.fillStyle = "#2B2620";
+    ctx.font = "bold 26px Georgia, serif";
+    ctx.fillText("Purchase Receipt", W / 2, y);
+
+    y += 26;
+    ctx.fillStyle = "#6B6455";
+    ctx.font = "13px Arial";
+    ctx.fillText(BUSINESS_ADDRESS, W / 2, y);
+    y += 20;
+    ctx.fillText(BUSINESS_PHONE, W / 2, y);
+
+    y += 30;
+    ctx.strokeStyle = "#DCD4C0";
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(60, y);
+    ctx.lineTo(W - 60, y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    y += 44;
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#2B2620";
+    ctx.font = "600 16px Arial";
+    ctx.fillText("Customer", 60, y);
+    ctx.textAlign = "right";
+    ctx.fillText(cust.name || '', W - 60, y);
+
+    y += 30;
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#6B6455";
+    ctx.font = "13px Arial";
+    ctx.fillText("Phone", 60, y);
+    ctx.textAlign = "right";
+    ctx.fillText(currentPhone, W - 60, y);
+
+    y += 26;
+    ctx.textAlign = "left";
+    ctx.fillText("Date", 60, y);
+    ctx.textAlign = "right";
+    ctx.fillText(fmtDate(purchase.date), W - 60, y);
+
+    y += 40;
+    ctx.strokeStyle = "#DCD4C0";
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(60, y);
+    ctx.lineTo(W - 60, y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    y += 44;
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#2B2620";
+    ctx.font = "16px Arial";
+    ctx.fillText("Purchase amount", 60, y);
+    ctx.textAlign = "right";
+    ctx.font = "600 16px Arial";
+    ctx.fillText(fmtAmt(purchase.amount), W - 60, y);
+
+    let finalTotal = purchase.amount;
+    if(pct){
+      y += 32;
+      ctx.textAlign = "left";
+      ctx.fillStyle = "#A87F2C";
+      ctx.font = "16px Arial";
+      ctx.fillText(`Discount (${pct}%)`, 60, y);
+      const discountAmt = Math.round(purchase.amount * pct / 100);
+      finalTotal = purchase.amount - discountAmt;
+      ctx.textAlign = "right";
+      ctx.fillText(`- ${fmtAmt(discountAmt)}`, W - 60, y);
+    }
+
+    y += 30;
+    ctx.strokeStyle = "#1F3A34";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(60, y);
+    ctx.lineTo(W - 60, y);
+    ctx.stroke();
+
+    y += 40;
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#1F3A34";
+    ctx.font = "bold 20px Georgia, serif";
+    ctx.fillText("Total", 60, y);
+    ctx.textAlign = "right";
+    ctx.fillText(fmtAmt(Math.round(finalTotal)), W - 60, y);
+
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#8FA69B";
+    ctx.font = "italic 14px Georgia, serif";
+    ctx.fillText("Thank you for shopping with us!", W / 2, H - 60);
+
+    return new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+  }
+
+  waBillBtn.addEventListener('click', async () => {
     const cust = customers[currentPhone];
     if(!cust || cust.history.length === 0){
       showToast("No purchases to send yet.");
@@ -504,8 +649,42 @@
     }
     const last = cust.history[cust.history.length - 1];
     const pct = discountPercentFor(last.amount);
-    const msg = `Hi ${cust.name || ''}, thank you for shopping at Noorie Enterprise!\n\nYour bill: ${fmtAmt(last.amount)} on ${fmtDate(last.date)}${pct ? `\n${pct}% discount applied — ${fmtAmt(Math.round(last.amount - last.amount * pct / 100))} after discount.` : ''}\n\nWe look forward to serving you again.`;
-    window.open(`https://wa.me/${toWaNumber(currentPhone)}?text=${encodeURIComponent(msg)}`, '_blank');
+
+    waBillBtn.disabled = true;
+    const originalLabel = waBillBtn.textContent;
+    waBillBtn.textContent = "Preparing image…";
+
+    try {
+      const blob = await generateBillImage(cust, last, pct);
+      const file = new File([blob], "noorie-bill.png", { type: "image/png" });
+
+      if(navigator.canShare && navigator.canShare({ files: [file] })){
+        await navigator.share({
+          files: [file],
+          title: "Noorie Enterprise — Bill",
+          text: `Bill for ${cust.name || 'customer'}`
+        });
+      } else {
+        // Fallback: download the image, then open WhatsApp chat so it can be attached manually
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = "noorie-bill.png";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast("Bill image downloaded — attach it in the WhatsApp chat.");
+        window.open(`https://wa.me/${toWaNumber(currentPhone)}`, '_blank');
+      }
+    } catch (err) {
+      if(err.name !== 'AbortError'){ // user cancelling the native share sheet isn't an error
+        showToast("Couldn't generate bill image.");
+      }
+    } finally {
+      waBillBtn.disabled = false;
+      waBillBtn.textContent = originalLabel;
+    }
   });
 
   waRewardBtn.addEventListener('click', () => {
@@ -523,6 +702,7 @@
   });
 
   scanAnotherBtn.addEventListener('click', backToSearch);
+  document.getElementById('backBtnTop').addEventListener('click', backToSearch);
 </script>
 
 </body>
