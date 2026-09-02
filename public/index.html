@@ -683,31 +683,23 @@
 
     try {
       const blob = await generateBillImage(cust, last, pct);
-      const file = new File([blob], "https://raw.githubusercontent.com/vohraadnan11/Noorie-CRM/main/public/round%20logo.jpg", { type: "image/png" });
 
-      if(navigator.canShare && navigator.canShare({ files: [file] })){
-        await navigator.share({
-          files: [file],
-          title: "Noorie Enterprise — Bill",
-          text: `Bill for ${cust.name || 'customer'}`
-        });
-      } else {
-        // Fallback: download the image, then open WhatsApp chat so it can be attached manually
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = "noorie-bill.png";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        showToast("Bill image downloaded — attach it in the WhatsApp chat.");
-        window.open(`https://wa.me/${toWaNumber(currentPhone)}`, '_blank');
-      }
+      // Always download the image and jump straight to this customer's
+      // specific WhatsApp chat — using the OS share sheet instead makes
+      // you re-pick the contact, since it can't target a WhatsApp number.
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = "noorie-bill.png";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      showToast("Bill image downloaded — tap 📎 in the chat to attach it.");
+      window.open(`https://wa.me/${toWaNumber(currentPhone)}`, '_blank');
     } catch (err) {
-      if(err.name !== 'AbortError'){ // user cancelling the native share sheet isn't an error
-        showToast("Couldn't generate bill image.");
-      }
+      showToast("Couldn't generate bill image.");
     } finally {
       waBillBtn.disabled = false;
       waBillBtn.textContent = originalLabel;
