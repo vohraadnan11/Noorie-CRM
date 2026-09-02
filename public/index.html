@@ -245,7 +245,7 @@
 
   <header class="top">
     <div class="logo">
-      <!-- Replace with <img src="logo.png" alt="Noorie"> once you have your logo file -->
+      <!-- Replace with <img src="https://raw.githubusercontent.com/vohraadnan11/Noorie-CRM/main/public/round%20logo.jpg" alt="Noorie"> once you have your logo file -->
       <span>N</span>
     </div>
     <div class="eyebrow">Noorie Enterprise</div>
@@ -656,7 +656,7 @@
 
     try {
       const blob = await generateBillImage(cust, last, pct);
-      const file = new File([blob], "noorie-bill.png", { type: "image/png" });
+      const file = new File([blob], "https://raw.githubusercontent.com/vohraadnan11/Noorie-CRM/main/public/round%20logo.jpg", { type: "image/png" });
 
       if(navigator.canShare && navigator.canShare({ files: [file] })){
         await navigator.share({
