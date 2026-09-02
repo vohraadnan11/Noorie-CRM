@@ -228,6 +228,30 @@
   }
   .toast.show{ display:block; }
 
+  /* PIN overlay */
+  #pinOverlay{
+    position:fixed; inset:0; z-index:9999;
+    background:rgba(21,39,34,0.82); backdrop-filter:blur(4px);
+    display:flex; align-items:center; justify-content:center;
+  }
+  #pinOverlay.hidden{ display:none; }
+  .pin-box{
+    background:var(--paper); border-radius:var(--radius);
+    padding:32px 28px; width:290px; max-width:90vw;
+    box-shadow:0 18px 40px rgba(0,0,0,0.35); text-align:center;
+  }
+  .pin-box img{ width:68px; height:68px; border-radius:50%; object-fit:cover; margin-bottom:14px; border:2px solid var(--gold); }
+  .pin-box h2{ font-family:'Zilla Slab',serif; font-size:19px; margin:0 0 4px; }
+  .pin-box p{ font-size:13px; color:var(--text-soft); margin:0 0 18px; }
+  .pin-box input{
+    width:100%; box-sizing:border-box; padding:12px; font-size:18px;
+    text-align:center; letter-spacing:6px; border-radius:8px;
+    border:1px solid var(--paper-line); margin-bottom:12px;
+    font-family:'IBM Plex Mono',monospace;
+  }
+  .pin-box .pin-err{ color:var(--danger); font-size:12px; margin:-6px 0 12px; display:none; }
+  .pin-box .pin-status{ font-size:12px; color:var(--text-soft); margin:8px 0 0; min-height:16px; }
+
   .switch-btn{
     background:none; border:none; color:var(--sage); font-family:'IBM Plex Mono', monospace;
     font-size:13px; cursor:pointer; padding:8px 0; text-align:center; width:100%;
@@ -309,6 +333,58 @@
 </div>
 
 <script>
+  /* ---- PIN overlay ---- */
+  const pinOverlay = document.getElementById('pinOverlay');
+  const pinInput   = document.getElementById('pinInput');
+  const pinSubmit  = document.getElementById('pinSubmit');
+  const pinErr     = document.getElementById('pinErr');
+  const pinStatus  = document.getElementById('pinStatus');
+
+  function isPinCookieSet(){
+    return document.cookie.split(';').some(c => c.trim().startsWith('noorie_auth='));
+  }
+
+  async function submitPin(){
+    const pin = pinInput.value.trim();
+    if(!pin) return;
+    pinErr.style.display = 'none';
+    pinStatus.textContent = 'Checking…';
+    pinSubmit.disabled = true;
+
+    try {
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin })
+      });
+      if(res.ok){
+        pinOverlay.classList.add('hidden');
+        pinStatus.textContent = '';
+      } else {
+        pinErr.style.display = 'block';
+        pinStatus.textContent = '';
+        pinInput.value = '';
+        pinInput.focus();
+      }
+    } catch(e) {
+      pinStatus.textContent = 'Network error — check your connection.';
+    } finally {
+      pinSubmit.disabled = false;
+    }
+  }
+
+  pinSubmit.addEventListener('click', submitPin);
+  pinInput.addEventListener('keydown', e => { if(e.key === 'Enter') submitPin(); });
+
+  // On load: if the session cookie is already present, skip the overlay
+  if(isPinCookieSet()){
+    pinOverlay.classList.add('hidden');
+  } else {
+    pinInput.focus();
+  }
+
+  /* ---- end PIN overlay ---- */
+
   const DISCOUNT_MIN_AMOUNT = 600;    // below this, no discount
   const DISCOUNT_TIER_CUTOFF = 1900;  // above this, higher tier
   const DISCOUNT_LOW = 10;            // % for DISCOUNT_MIN_AMOUNT–DISCOUNT_TIER_CUTOFF
@@ -723,6 +799,19 @@
   scanAnotherBtn.addEventListener('click', backToSearch);
   document.getElementById('backBtnTop').addEventListener('click', backToSearch);
 </script>
+
+<!-- PIN overlay (same approach as bill.noorie.in — app is visible behind it) -->
+<div id="pinOverlay">
+  <div class="pin-box">
+    <img src="/round%20logo.jpg" alt="Noorie">
+    <h2>Noorie CRM</h2>
+    <p>Enter PIN to continue</p>
+    <div class="pin-err" id="pinErr">Incorrect PIN — try again.</div>
+    <input type="password" id="pinInput" inputmode="numeric" placeholder="· · · ·" autocomplete="off">
+    <button class="btn btn-primary" id="pinSubmit">Unlock</button>
+    <div class="pin-status" id="pinStatus"></div>
+  </div>
+</div>
 
 </body>
 </html>
