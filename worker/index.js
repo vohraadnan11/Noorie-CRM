@@ -16,7 +16,7 @@ function getCookie(request, name) {
   return match ? match[1] : null;
 }
 
-const SESSION_MAX_AGE = 60 * 60 * 24; // 24 hours
+const SESSION_MAX_AGE = 60 * 60 * 8; // 8 hours
 
 async function isAuthed(request, env) {
   if (!env.SITE_PIN) return true;
