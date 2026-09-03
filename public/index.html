@@ -194,13 +194,22 @@
   .ledger-line .amt{ font-weight:600; flex-shrink:0; }
   .empty-hist{ font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--text-soft); padding:8px 0; }
 
-  .discount-note{
-    margin-top:14px; background:#fff; border:1px solid var(--paper-line);
-    border-radius:8px; padding:10px 12px; font-size:13.5px; color:var(--text-soft);
-    display:none;
+  .disc-btns{ display:flex; gap:8px; margin-top:10px; }
+  .disc-btn{
+    flex:1; padding:10px 6px; font-size:13px; font-weight:600;
+    border-radius:8px; border:2px solid var(--paper-line);
+    background:#fff; color:var(--text-soft); cursor:pointer; transition:all .12s;
+    font-family:'IBM Plex Mono',monospace;
   }
-  .discount-note.active{ display:block; border-color:var(--gold); background:#FBF3E1; }
-  .discount-note strong{ color:var(--text); }
+  .disc-btn:hover{ border-color:var(--gold); color:var(--text); }
+  .disc-btn.selected{ border-color:var(--gold); background:var(--gold); color:var(--ink-deep); }
+  .purchase-summary{
+    margin-top:12px; background:#fff; border:1.5px solid var(--gold);
+    border-radius:8px; padding:12px 14px; display:none;
+  }
+  .purchase-summary.active{ display:block; }
+  .summary-row{ display:flex; justify-content:space-between; font-size:13.5px; margin-bottom:6px; }
+  .summary-row:last-child{ margin-bottom:0; font-weight:700; font-size:15px; border-top:1px dashed var(--paper-line); padding-top:8px; margin-top:4px; }
 
   .add-form{ margin-top:16px; border-top:1.5px dashed var(--paper-line); padding-top:14px; }
   .add-form h3{ font-family:'Zilla Slab', serif; font-size:16px; margin:0 0 10px; }
@@ -307,9 +316,27 @@
       <label for="newAmt">Amount (₹)</label>
       <div class="amt-row">
         <input type="number" id="newAmt" placeholder="0" min="0" step="1" />
-        <button class="btn btn-gold" id="addPurchaseBtn" style="width:auto;">Add</button>
       </div>
-      <div class="discount-note" id="discountNote"></div>
+      <div class="disc-btns">
+        <button class="disc-btn" data-pct="10">10% off</button>
+        <button class="disc-btn" data-pct="15">15% off</button>
+        <button class="disc-btn" data-pct="20">20% off</button>
+      </div>
+      <div class="purchase-summary" id="purchaseSummary">
+        <div class="summary-row">
+          <span>Original amount</span>
+          <span id="summaryOriginal">—</span>
+        </div>
+        <div class="summary-row" id="summaryDiscountRow">
+          <span id="summaryDiscountLabel">Discount</span>
+          <span id="summaryDiscountAmt">—</span>
+        </div>
+        <div class="summary-row">
+          <span>Total to save</span>
+          <span id="summaryFinal">—</span>
+        </div>
+      </div>
+      <button class="btn btn-gold" id="addPurchaseBtn" style="width:100%; margin-top:12px;">Add purchase</button>
     </div>
 
     <div class="whatsapp-section">
@@ -327,7 +354,7 @@
   </div>
 
   <footer class="disclaim">
-    Discount: ₹600–₹1900 purchase = 10% off. Above ₹1900 = 15% off.
+    Discounts: select 10%, 15%, or 20% before adding a purchase — the discounted total is saved automatically.
   </footer>
 
 </div>
@@ -388,10 +415,7 @@
   });
   /* ---- end PIN overlay ---- */
 
-  const DISCOUNT_MIN_AMOUNT = 600;    // below this, no discount
-  const DISCOUNT_TIER_CUTOFF = 1900;  // above this, higher tier
-  const DISCOUNT_LOW = 10;            // % for DISCOUNT_MIN_AMOUNT–DISCOUNT_TIER_CUTOFF
-  const DISCOUNT_HIGH = 15;           // % above DISCOUNT_TIER_CUTOFF
+  let selectedDiscount = 0; // currently selected discount % (0 = none)
 
   const BUSINESS_NAME = "Noorie Enterprise";
   const BUSINESS_PHONE = "+91 88666 78666 ";
@@ -462,9 +486,26 @@
     return digits;
   }
 
-  function discountPercentFor(amount){
-    if(!amount || amount < DISCOUNT_MIN_AMOUNT) return 0;
-    return amount > DISCOUNT_TIER_CUTOFF ? DISCOUNT_HIGH : DISCOUNT_LOW;
+  function updatePurchaseSummary(){
+    const amount = parseFloat(newAmt.value);
+    const summary = document.getElementById('purchaseSummary');
+    if(!amount || amount <= 0){
+      summary.classList.remove('active');
+      return;
+    }
+    const discountAmt = selectedDiscount ? Math.round(amount * selectedDiscount / 100) : 0;
+    const final = amount - discountAmt;
+    document.getElementById('summaryOriginal').textContent = fmtAmt(amount);
+    const discRow = document.getElementById('summaryDiscountRow');
+    if(selectedDiscount){
+      discRow.style.display = 'flex';
+      document.getElementById('summaryDiscountLabel').textContent = `Discount (${selectedDiscount}%)`;
+      document.getElementById('summaryDiscountAmt').textContent = `- ${fmtAmt(discountAmt)}`;
+    } else {
+      discRow.style.display = 'none';
+    }
+    document.getElementById('summaryFinal').textContent = fmtAmt(final);
+    summary.classList.add('active');
   }
 
   function renderCustomer(phone){
@@ -493,23 +534,7 @@
       });
     }
 
-    updateDiscountPreview();
-  }
-
-  function updateDiscountPreview(){
-    const noteEl = document.getElementById('discountNote');
-    const amount = parseFloat(newAmt.value);
-    const pct = discountPercentFor(amount);
-
-    if(!pct){
-      noteEl.classList.remove('active');
-      noteEl.innerHTML = "";
-      return;
-    }
-
-    const discountedTotal = amount - (amount * pct / 100);
-    noteEl.classList.add('active');
-    noteEl.innerHTML = `<strong>${pct}% discount applies.</strong> ₹${amount.toLocaleString('en-IN')} → ${fmtAmt(Math.round(discountedTotal))} after discount. (Apply manually at billing — this amount isn't auto-saved.)`;
+    updatePurchaseSummary();
   }
 
   async function showCustomer(phone){
@@ -545,7 +570,24 @@
     if(e.key === "Enter"){ lookupBtn.click(); }
   });
 
-  newAmt.addEventListener('input', updateDiscountPreview);
+  // Discount buttons
+  document.querySelectorAll('.disc-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const pct = parseInt(btn.dataset.pct);
+      if(selectedDiscount === pct){
+        // toggle off if same button clicked again
+        selectedDiscount = 0;
+        btn.classList.remove('selected');
+      } else {
+        selectedDiscount = pct;
+        document.querySelectorAll('.disc-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+      }
+      updatePurchaseSummary();
+    });
+  });
+
+  newAmt.addEventListener('input', updatePurchaseSummary);
 
   addPurchaseBtn.addEventListener('click', async () => {
     const amt = parseFloat(newAmt.value);
@@ -565,18 +607,25 @@
       nameToSend = typedName;
     }
 
+    const discountAmt = selectedDiscount ? Math.round(amt * selectedDiscount / 100) : 0;
+    const finalAmt = amt - discountAmt;
+
     addPurchaseBtn.disabled = true;
     addPurchaseBtn.textContent = "Saving…";
     try {
-      await postPurchase(currentPhone, amt, nameToSend);
-      renderCustomer(currentPhone);
+      await postPurchase(currentPhone, finalAmt, nameToSend);
+      // Reset discount selection
+      selectedDiscount = 0;
+      document.querySelectorAll('.disc-btn').forEach(b => b.classList.remove('selected'));
+      document.getElementById('purchaseSummary').classList.remove('active');
       newAmt.value = "";
-      showToast("Purchase added — VIP status updated.");
+      renderCustomer(currentPhone);
+      showToast(discountAmt ? `Saved ₹${finalAmt.toLocaleString('en-IN')} (${amt.toLocaleString('en-IN')} − ${discountAmt.toLocaleString('en-IN')} discount).` : "Purchase added.");
     } catch (err) {
       showToast("Couldn't save — " + err.message);
     } finally {
       addPurchaseBtn.disabled = false;
-      addPurchaseBtn.textContent = "Add";
+      addPurchaseBtn.textContent = "Add purchase";
     }
   });
 
@@ -754,7 +803,7 @@
       return;
     }
     const last = cust.history[cust.history.length - 1];
-    const pct = discountPercentFor(last.amount);
+    const pct = 0; // discount already baked into saved amount
 
     waBillBtn.disabled = true;
     const originalLabel = waBillBtn.textContent;
@@ -787,15 +836,8 @@
 
   waRewardBtn.addEventListener('click', () => {
     const cust = customers[currentPhone];
-    if(!cust || cust.history.length === 0){
-      showToast("No purchases yet to check discount status.");
-      return;
-    }
-    const last = cust.history[cust.history.length - 1];
-    const pct = discountPercentFor(last.amount);
-    const msg = pct
-      ? `Hi ${cust.name || ''}, good news from Noorie Enterprise!\n\nYour purchase of ${fmtAmt(last.amount)} qualifies for a ${pct}% discount.\n\nWe look forward to seeing you again!`
-      : `Hi ${cust.name || ''}, here's our discount policy at Noorie Enterprise:\n\n₹${DISCOUNT_MIN_AMOUNT}–₹${DISCOUNT_TIER_CUTOFF}: ${DISCOUNT_LOW}% off\nAbove ₹${DISCOUNT_TIER_CUTOFF}: ${DISCOUNT_HIGH}% off\n\nApplies automatically on qualifying purchases!`;
+    if(!cust) return;
+    const msg = `Hi ${cust.name || ''}, here's your purchase summary from Noorie Enterprise!\n\nTotal purchases: ${cust.history.length}\nLast visit: ${cust.history.length ? fmtDate(cust.history[cust.history.length-1].date) : '—'}\n\nWe look forward to seeing you again!`;
     window.open(`https://wa.me/${toWaNumber(currentPhone)}?text=${encodeURIComponent(msg)}`, '_blank');
   });
 
